@@ -1,6 +1,7 @@
+import bcrypt from 'bcrypt';
 import { Request, Response } from "express";
 import User from "../models/userModel"
-
+import { generateActiveToken, generateAccessToken, generateReFreshToken } from "../config/generateToken"
 
 const authControl = {
     register: async (req: Request, res: Response) => {
@@ -10,11 +11,19 @@ const authControl = {
             if (user) {
                 return res.status(500).json({ message: `${account} ID is already in use!` })
             }
-            const newUser = new User({ name, account, password })
+            const userObj = { name, account, password }
 
-            await newUser.save()
+            const active_token = generateActiveToken(userObj)
 
-            res.status(201).json({ message: "Acoount has been created succesufully", newUser })
+            const newUser = await User.create(userObj)
+
+
+            res.status(201).json({
+                status: "OK",
+                message: "Acoount has been created succesufully",
+                newUser,
+                active_token
+            })
         } catch (err: any) {
             return res.status(500).json({ message: err.message })
         }

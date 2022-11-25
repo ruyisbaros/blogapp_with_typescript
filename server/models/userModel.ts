@@ -25,6 +25,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "https://res.cloudinary.com/ruyisbaros/image/upload/v1667665010/mern-e-commerce/mioipdwcan4r6zm26x3j.png"
     },
+    role: {
+        type: String,
+        enum: ["User", "Admin", "Co-host"],
+        default: "User"
+    },
     type: {
         type: String,
         default: "normal"
@@ -44,19 +49,6 @@ userSchema.methods.isPasswordTrue = async function (candidatePassword: string) {
     return await bcrypt.compare(candidatePassword, this.password);
 };
 
-//Create access token
-userSchema.methods.createJwtToken = function () {
-    return jwt.sign({ id: this._id }, process.env.ACCESS_TOKEN_KEY!, {
-        expiresIn: "2d",
-    });
-};
-
-//Create refresh token
-userSchema.methods.createReFreshToken = function () {
-    return jwt.sign({ id: this._id }, process.env.REFRESH_TOKEN_KEY!, {
-        expiresIn: "7d",
-    });
-};
 
 //Forgot password
 userSchema.methods.createResetToken = function () {
